@@ -1,0 +1,205 @@
+# Educational Reporting Framework API Examples
+# Use with REST client extensions in VS Code or similar tools
+
+### Health Check
+GET http://localhost:8080/health
+
+### Start a Session
+POST http://localhost:8080/api/v1/sessions/start
+Content-Type: application/json
+X-API-Key: wb_key_123
+
+{
+  "user_id": "123e4567-e89b-12d3-a456-426614174000",
+  "application": "whiteboard",
+  "classroom_id": "123e4567-e89b-12d3-a456-426614174001",
+  "device_type": "tablet",
+  "app_version": "2.1.0"
+}
+
+### Submit Events Batch
+POST http://localhost:8080/api/v1/events/batch
+Content-Type: application/json
+X-API-Key: nb_key_456
+
+{
+  "events": [
+    {
+      "event_type": "quiz_answer_submitted",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "user_id": "123e4567-e89b-12d3-a456-426614174000",
+      "session_id": "123e4567-e89b-12d3-a456-426614174002",
+      "classroom_id": "123e4567-e89b-12d3-a456-426614174001",
+      "application": "notebook",
+      "payload": {
+        "quiz_id": "quiz_001",
+        "question_id": "q1",
+        "answer": "A",
+        "time_taken_seconds": 45
+      },
+      "metadata": {
+        "device_type": "tablet",
+        "app_version": "2.1.0"
+      }
+    },
+    {
+      "event_type": "page_view",
+      "timestamp": "2024-01-15T10:31:00Z",
+      "user_id": "123e4567-e89b-12d3-a456-426614174000",
+      "session_id": "123e4567-e89b-12d3-a456-426614174002",
+      "classroom_id": "123e4567-e89b-12d3-a456-426614174001",
+      "application": "notebook",
+      "payload": {
+        "page_id": "lesson_1",
+        "duration": 30
+      },
+      "metadata": {
+        "device_type": "tablet",
+        "app_version": "2.1.0"
+      }
+    }
+  ]
+}
+
+### Create a Quiz
+POST http://localhost:8080/api/v1/quizzes
+Content-Type: application/json
+X-API-Key: wb_key_123
+
+{
+  "title": "Mathematics Quiz 1",
+  "classroom_id": "123e4567-e89b-12d3-a456-426614174001",
+  "teacher_id": "123e4567-e89b-12d3-a456-426614174003",
+  "time_limit_minutes": 30,
+  "questions": [
+    {
+      "question_text": "What is 2 + 2?",
+      "question_type": "multiple_choice",
+      "options": {
+        "A": "3",
+        "B": "4",
+        "C": "5",
+        "D": "6"
+      },
+      "correct_answer": "B",
+      "points": 20,
+      "order_index": 1
+    },
+    {
+      "question_text": "What is 5 * 3?",
+      "question_type": "multiple_choice",
+      "options": {
+        "A": "15",
+        "B": "12",
+        "C": "18",
+        "D": "20"
+      },
+      "correct_answer": "A",
+      "points": 20,
+      "order_index": 2
+    }
+  ]
+}
+
+### Get Student Performance Report
+GET http://localhost:8080/api/v1/reports/students/123e4567-e89b-12d3-a456-426614174000/performance?start_date=2024-01-01&end_date=2024-01-31&subject=Mathematics
+X-API-Key: wb_key_123
+
+### Get Classroom Engagement
+GET http://localhost:8080/api/v1/reports/classrooms/123e4567-e89b-12d3-a456-426614174001/engagement?date=2024-01-15
+X-API-Key: wb_key_123
+
+### Get Content Effectiveness
+GET http://localhost:8080/api/v1/reports/content/effectiveness?content_type=quiz&time_period=month
+X-API-Key: wb_key_123
+
+### Analytics Query (Cube.dev style)
+POST http://localhost:8080/api/v1/analytics/query
+Content-Type: application/json
+X-API-Key: wb_key_123
+
+{
+  "measures": [
+    "quiz_responses.average_score",
+    "quiz_responses.completion_rate",
+    "sessions.total_duration"
+  ],
+  "dimensions": [
+    "users.role",
+    "classrooms.subject"
+  ],
+  "filters": [
+    {
+      "dimension": "time.date",
+      "operator": "gte",
+      "value": "2024-01-01"
+    },
+    {
+      "dimension": "users.role",
+      "operator": "eq",
+      "value": "student"
+    }
+  ],
+  "time_dimension": {
+    "dimension": "events.timestamp",
+    "granularity": "day"
+  },
+  "limit": 100
+}
+
+### Submit Quiz Response
+POST http://localhost:8080/api/v1/quizzes/123e4567-e89b-12d3-a456-426614174004/responses
+Content-Type: application/json
+X-API-Key: nb_key_456
+
+{
+  "question_id": "123e4567-e89b-12d3-a456-426614174005",
+  "student_id": "123e4567-e89b-12d3-a456-426614174000",
+  "answer": "B",
+  "time_taken_seconds": 45
+}
+
+### End a Session
+POST http://localhost:8080/api/v1/sessions/123e4567-e89b-12d3-a456-426614174002/end
+Content-Type: application/json
+X-API-Key: wb_key_123
+
+{
+  "end_time": "2024-01-15T11:00:00Z"
+}
+
+### WebSocket Connection (JavaScript Example)
+# This would be used in a frontend application
+/*
+const ws = new WebSocket('ws://localhost:8080/api/v1/live/classroom/123e4567-e89b-12d3-a456-426614174001');
+
+ws.onopen = function(event) {
+  console.log('Connected to classroom live feed');
+};
+
+ws.onmessage = function(event) {
+  const data = JSON.parse(event.data);
+  console.log('Live update:', data);
+
+  // Handle different message types
+  switch(data.type) {
+    case 'initial_data':
+      // Handle initial classroom data
+      break;
+    case 'live_update':
+      // Handle real-time updates
+      break;
+  }
+};
+
+ws.onclose = function(event) {
+  console.log('Disconnected from live feed');
+};
+
+// Send keepalive ping every 30 seconds
+setInterval(() => {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({type: 'ping'}));
+  }
+}, 30000);
+*/
