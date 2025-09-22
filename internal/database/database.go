@@ -2,6 +2,7 @@ package database
 
 import (
 	"reporting-framework/internal/models"
+	"reporting-framework/internal/seedmigrations"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -19,8 +20,10 @@ func InitDB(databaseURL string) (*gorm.DB, error) {
 	return db, nil
 }
 
+// Migrate runs database migrations and ensures seed data exists
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(
+	// Run schema migrations first
+	err := db.AutoMigrate(
 		&models.School{},
 		&models.User{},
 		&models.Classroom{},
@@ -33,4 +36,13 @@ func Migrate(db *gorm.DB) error {
 		&models.DailyUserStats{},
 		&models.ClassroomAnalytics{},
 	)
+	if err != nil {
+		return err
+	}
+
+	// Run seed migrations to ensure data exists
+	// This is non-destructive and only runs if no data exists
+	seedmigrations.AutoSeedOnStartup(db)
+
+	return nil
 }

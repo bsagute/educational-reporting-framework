@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"reporting-framework/internal/api"
 	"reporting-framework/internal/config"

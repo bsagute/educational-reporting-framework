@@ -2,7 +2,23 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:www.youtube.com)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(tree:*)",
+      "Bash(env PORT=8080 DATABASE_URL=\"postgres://postgres:password@localhost:5432/reporting_db?sslmode=disable\" REDIS_URL=\"redis://localhost:6379\" JWT_SECRET=\"your-super-secret-jwt-key-here\" WHITEBOARD_API_KEY=\"wb_api_key_12345\" NOTEBOOK_API_KEY=\"nb_api_key_67890\" ./reporting-server)",
+      "Bash(docker:*)",
+      "Bash(mkdir:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(go run:*)",
+      "Bash(pkill:*)",
+      "Bash(PGPASSWORD=password psql:*)",
+      "Bash(env DATABASE_URL=\"postgres://postgres:password@localhost:5432/reporting_db?sslmode=disable\" go run test_db_connection.go)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "WebFetch(domain:youtu.be)",
+      "Bash(go build:*)",
+      "Bash(zip:*)",
+      "Bash(. )"
     ],
     "deny": [],
     "ask": []

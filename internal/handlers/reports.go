@@ -48,7 +48,7 @@ type SubjectPerformance struct {
 
 type EngagementMetrics struct {
 	SessionCount           int     `json:"session_count"`
-	TotalTimeMinutes       int     `json:"total_time_minutes"`
+	TotalTimeMinutes       float64 `json:"total_time_minutes"`
 	AverageSessionDuration float64 `json:"average_session_duration"`
 }
 
@@ -223,14 +223,14 @@ func (h *ReportHandler) getQuizPerformance(studentID uuid.UUID, start, end time.
 
 func (h *ReportHandler) getEngagementMetrics(studentID uuid.UUID, start, end time.Time) (*EngagementMetrics, error) {
 	var result struct {
-		SessionCount     int `json:"session_count"`
-		TotalTimeMinutes int `json:"total_time_minutes"`
+		SessionCount     int     `json:"session_count"`
+		TotalTimeMinutes float64 `json:"total_time_minutes"`
 	}
 
 	err := h.db.Table("sessions").
 		Select(`
 			COUNT(*) as session_count,
-			COALESCE(SUM(duration_seconds), 0) / 60 as total_time_minutes
+			COALESCE(SUM(duration_seconds), 0) / 60.0 as total_time_minutes
 		`).
 		Where("user_id = ?", studentID).
 		Where("start_time BETWEEN ? AND ?", start, end).
@@ -242,7 +242,7 @@ func (h *ReportHandler) getEngagementMetrics(studentID uuid.UUID, start, end tim
 
 	averageSessionDuration := 0.0
 	if result.SessionCount > 0 {
-		averageSessionDuration = float64(result.TotalTimeMinutes) / float64(result.SessionCount)
+		averageSessionDuration = result.TotalTimeMinutes / float64(result.SessionCount)
 	}
 
 	return &EngagementMetrics{
@@ -372,7 +372,7 @@ func (h *ReportHandler) GetClassroomTrends(c *gin.Context) {
 	endDate := time.Now()
 	startDate := endDate.AddDate(0, 0, -days)
 
-	var trends []ClassroomAnalytics
+	var trends []models.ClassroomAnalytics
 	err = h.db.Table("classroom_analytics").
 		Where("classroom_id = ?", id).
 		Where("date BETWEEN ? AND ?", startDate, endDate).

@@ -33,6 +33,7 @@ func (s *Server) setupRoutes() {
 	quizHandler := handlers.NewQuizHandler(s.db)
 	reportHandler := handlers.NewReportHandler(s.db)
 	analyticsHandler := handlers.NewAnalyticsHandler(s.db)
+	crudHandler := handlers.NewCRUDHandler(s.db)
 
 	// Middleware
 	s.router.Use(middleware.CORS())
@@ -94,6 +95,25 @@ func (s *Server) setupRoutes() {
 			live.GET("/classroom/:id", func(c *gin.Context) {
 				handlers.HandleWebSocket(c, s.db)
 			})
+		}
+
+		// CRUD endpoints for basic data management
+		crud := v1.Group("/")
+		{
+			// School management
+			crud.GET("/schools", crudHandler.GetSchools)
+			crud.GET("/schools/:id", crudHandler.GetSchool)
+			crud.POST("/schools", crudHandler.CreateSchool)
+
+			// User management
+			crud.GET("/users", crudHandler.GetUsers)
+			crud.GET("/users/:id", crudHandler.GetUser)
+			crud.POST("/users", crudHandler.CreateUser)
+
+			// Classroom management
+			crud.GET("/classrooms", crudHandler.GetClassrooms)
+			crud.GET("/classrooms/:id", crudHandler.GetClassroom)
+			crud.POST("/classrooms", crudHandler.CreateClassroom)
 		}
 	}
 }

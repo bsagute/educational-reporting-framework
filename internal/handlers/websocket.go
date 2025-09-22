@@ -125,7 +125,7 @@ func getClassroomLiveData(db *gorm.DB, classroomID uuid.UUID) (*ClassroomLiveDat
 		Distinct("user_id").
 		Where("classroom_id = ?", classroomID).
 		Where("start_time >= ?", oneHourAgo).
-		Count(&activeStudents)
+		Count(&activeStudents).Error
 	if err != nil {
 		return nil, err
 	}
